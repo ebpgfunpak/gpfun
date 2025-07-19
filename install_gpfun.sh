@@ -44,8 +44,6 @@ else
     path="$1"
 fi
 
-tarfile="gpfun_el8.tar.gz"
-
 
 if ! command -v python3 > /dev/null ; then
     echo
@@ -88,20 +86,27 @@ echo
 if [ $RHEL == "7" ]; then
     echo "RHEL 7"
     echo
-    echo "Sorry, this installation is for RHEL-8, not RHEL-7."
-    echo
-    exit
     RHEL7=1
+    tarfile="gpfun_el7.tar.gz"
+    #
 elif [ $RHEL == "8" ]; then
     echo "RHEL 8"
+    echo
     RHEL7=0
+    tarfile="gpfun_el8.tar.gz"
+    #
 elif [ $RHEL == "9" ]; then
     echo "RHEL 9"
     echo
-    echo "Sorry, this installation is for RHEL-8, not RHEL-9."
+    echo "Sorry, this installation is for RHEL-7 or RHEL-8, not RHEL-9."
     echo
     exit
-    RHEL7=0
+elif [ $RHEL == "10" ]; then
+    echo "RHEL 10"
+    echo
+    echo "Sorry, this installation is for RHEL-7 or RHEL-8, not RHEL-10."
+    echo
+    exit
 else
     echo "Is this a Red Hat or Rocky linux system? "
     echo "This installation script works only for "
