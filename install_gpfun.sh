@@ -1,12 +1,12 @@
 #!/bin/bash
-#               gpfun installation script v2
+#               gpfun installation script v3
 
 # This script will download gpfun from github, then will
 # unpack the tar file in /usr/local/bin/ebpg_funpak, creating
 # the folder /usr/local/bin/ebpg_funpak/gpfun.
 # It will check your command PATH and update it in /etc/bashrc.
 #
-# This installation works only for RHEL-8 or Rocky-8 Linux.
+# This installation works RHEL-7, RHEL-8 or Rocky-8 Linux.
 # Gpfun is for EBPG system with UPG pattern generators,
 # not for older GPG systems.
 
@@ -44,6 +44,49 @@ else
     path="$1"
 fi
 
+# check the Linux version
+
+RHEL=`uname -r | grep -Po ".el\K[^.]"`
+
+echo
+if [ $RHEL == "7" ]; then
+    echo "RHEL 7"
+    echo
+    RHEL7=1
+    tarfile="gpfun_el7.tar.gz"
+    packager="yum"
+    #
+elif [ $RHEL == "8" ]; then
+    echo "RHEL 8"
+    echo
+    RHEL7=0
+    tarfile="gpfun_el8.tar.gz"
+    packager="dnf"
+    #
+elif [ $RHEL == "9" ]; then
+    echo "RHEL 9"
+    echo
+    echo "Sorry, this installation is for RHEL-7 or RHEL-8, not RHEL-9."
+    echo "Please send a build request to ebpgfunpak@gmail.com"
+    echo
+    exit
+elif [ $RHEL == "10" ]; then
+    echo "RHEL 10"
+    echo
+    echo "Sorry, this installation is for RHEL-7 or RHEL-8, not RHEL-10."
+    echo "Please send a build request to ebpgfunpak@gmail.com"
+    echo
+    exit
+else
+    echo "Is this a Red Hat or Rocky linux system? "
+    echo "This installation script works only for "
+    echo "RHEL-7, RHEL-8, or Rocky-8."
+    echo
+    echo "An EBPG console normally runs version 7 or 8."
+    echo 
+    exit
+fi
+
 
 if ! command -v python3 > /dev/null ; then
     echo
@@ -54,8 +97,7 @@ if ! command -v python3 > /dev/null ; then
     echo "with a linux repository, you can "
     echo "install python3 with..."
     echo
-    echo "dnf install -y python3-devel"
-    echo "dnf install -y PyQt5"
+    echo "$packager install -y python3-devel"
     echo
     echo "gpfun installation failed."
     echo
@@ -78,44 +120,6 @@ echo
 
 # target is normally /usr/local/bin/ebpg_funpak
 
-# check the Linux version
-
-RHEL=`uname -r | grep -Po ".el\K[^.]"`
-
-echo
-if [ $RHEL == "7" ]; then
-    echo "RHEL 7"
-    echo
-    RHEL7=1
-    tarfile="gpfun_el7.tar.gz"
-    #
-elif [ $RHEL == "8" ]; then
-    echo "RHEL 8"
-    echo
-    RHEL7=0
-    tarfile="gpfun_el8.tar.gz"
-    #
-elif [ $RHEL == "9" ]; then
-    echo "RHEL 9"
-    echo
-    echo "Sorry, this installation is for RHEL-7 or RHEL-8, not RHEL-9."
-    echo
-    exit
-elif [ $RHEL == "10" ]; then
-    echo "RHEL 10"
-    echo
-    echo "Sorry, this installation is for RHEL-7 or RHEL-8, not RHEL-10."
-    echo
-    exit
-else
-    echo "Is this a Red Hat or Rocky linux system? "
-    echo "This installation script works only for "
-    echo "RHEL or Rocky 8."
-    echo
-    echo "An EBPG console normally runs version 8."
-    echo 
-    exit
-fi
 
 echo  
 
@@ -307,9 +311,11 @@ fi
 cp gpfun.desktop /etc/skel/Desktop/
 
 cp gpfun.desktop /home/$USER/Desktop/
+chown $USER /home/$USER/Desktop/gpfun.desktop
 
 if [ -d /home/pg ]; then
     cp gpfun.desktop /home/pg/Desktop/
+    chown pg /home/pg/Desktop/gpfun.desktop
 fi
 
 
