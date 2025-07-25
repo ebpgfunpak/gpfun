@@ -293,6 +293,7 @@ if [ ! -f $target/$tarfile ]; then
     echo "Please send a bug report to ebpgfunpak@gmail.com"
     echo
     exit
+fi
 
 echo
 echo "Unpacking the tar file..."
