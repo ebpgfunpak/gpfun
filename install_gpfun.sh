@@ -1,5 +1,5 @@
 #!/bin/bash
-#               gpfun installation script v4
+#               gpfun installation script v3
 
 # This script will download gpfun from github, then will
 # unpack the tar file in /usr/local/bin/ebpg_funpak, creating
@@ -202,6 +202,12 @@ fi
 
 pushd .
 
+if [ `pwd` != $target ]; then
+    mv $tarfile $target/
+    cd $target
+fi
+
+
 
 # we do not need to check for the python modules
 # since fbs packages them for us - even QT5.
@@ -282,17 +288,6 @@ else
        
     mv $tarfile $target/
 fi
-
-# check that the distro got to $target
-
-if [ ! -f $target/$tarfile ]; then
-    echo
-    echo "ERROR"
-    echo "Sorry, I was unable to move $tarfile to $target. "
-    echo "gpfun installation failed."
-    echo "Please send a bug report to ebpgfunpak@gmail.com"
-    echo
-    exit
 
 echo
 echo "Unpacking the tar file..."
