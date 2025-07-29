@@ -1,5 +1,5 @@
 #!/bin/bash
-#               gpfun installation script v5
+#               gpfun installation script v4
 
 # This script will download gpfun from github, then will
 # unpack the tar file in /usr/local/bin/ebpg_funpak, creating
@@ -279,7 +279,8 @@ else
         echo
         exit
     fi
-    mv -f $tarfile $target/
+       
+    mv $tarfile $target/
 fi
 
 # check that the distro got to $target
@@ -313,13 +314,13 @@ if [ ! -d /etc/skel/Desktop ]; then
     mkdir /etc/skel/Desktop
 fi
 
-cp -f gpfun.desktop /etc/skel/Desktop/
+cp gpfun.desktop /etc/skel/Desktop/
 
-cp -f gpfun.desktop /home/$USER/Desktop/
+cp gpfun.desktop /home/$USER/Desktop/
 chown $USER /home/$USER/Desktop/gpfun.desktop
 
 if [ -d /home/pg ]; then
-    cp -f gpfun.desktop /home/pg/Desktop/
+    cp gpfun.desktop /home/pg/Desktop/
     chown pg /home/pg/Desktop/gpfun.desktop
 fi
 
