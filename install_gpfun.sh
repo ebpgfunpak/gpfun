@@ -1,5 +1,5 @@
 #!/bin/bash
-#               gpfun installation script v5
+#               gpfun installation script v6
 
 # This script will download gpfun from github, then will
 # unpack the tar file in /usr/local/bin/ebpg_funpak, creating
@@ -9,6 +9,8 @@
 # This installation works RHEL-7, RHEL-8 or Rocky-8 Linux.
 # Gpfun is for EBPG system with UPG pattern generators,
 # not for older GPG systems.
+
+# v6  Kill gpfun, if it is running, before installing the new version.
 
 #
 # You can run this script from a terminal window with
@@ -293,6 +295,13 @@ if [ ! -f $target/$tarfile ]; then
     echo
     exit
 fi
+
+
+# kill off gpfun before installing the new version
+# otherwise the older tasks freeze or crash
+
+killall gpfun
+
 
 echo
 echo "Unpacking the tar file..."
