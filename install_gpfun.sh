@@ -1,5 +1,5 @@
 #!/bin/bash
-#               gpfun installation script v6
+#               gpfun installation script v7
 
 # This script will download gpfun from github, then will
 # unpack the tar file in /usr/local/bin/ebpg_funpak, creating
@@ -11,11 +11,12 @@
 # not for older GPG systems.
 
 # v6  Kill gpfun, if it is running, before installing the new version.
-
+# v7  Source pg_local and /etc/bashrc, being careful with pushd/popd
+#     Exits gracefully when using 'source' instead of execution in a shell. 
 #
 # You can run this script from a terminal window with
 #
-#      ./install_gpfun.sh 
+#      source ./install_gpfun.sh 
 #
 # This script will check that you have 
 # python3, gpfgtx, gtxgpf, and cview.
@@ -24,8 +25,7 @@
 # /usr/local/bin/ebpg_funpak/gpfun, along with png files
 # and the utility gpfmerge. If you have an old version
 # of gpfmerge then this new one will appear ahead of it
-# in the PATH. You can rename the old gpfmerge, if you
-# want it for some reason. You really should not.
+# in the PATH. 
 
 # Gpfun is packaged with fbs and so the package
 # contains all the required libraries and modules.
@@ -71,14 +71,14 @@ elif [ $RHEL == "9" ]; then
     echo "Sorry, this installation is for RHEL-7 or RHEL-8, not RHEL-9."
     echo "Please send a build request to ebpgfunpak@gmail.com"
     echo
-    exit
+    return 2> /dev/null ; exit 
 elif [ $RHEL == "10" ]; then
     echo "RHEL 10"
     echo
     echo "Sorry, this installation is for RHEL-7 or RHEL-8, not RHEL-10."
     echo "Please send a build request to ebpgfunpak@gmail.com"
     echo
-    exit
+    return 2> /dev/null ; exit 
 else
     echo "Is this a Red Hat or Rocky linux system? "
     echo "This installation script works only for "
@@ -86,7 +86,7 @@ else
     echo
     echo "An EBPG console normally runs version 7 or 8."
     echo 
-    exit
+    return 2> /dev/null ; exit 
 fi
 
 
@@ -103,7 +103,7 @@ if ! command -v python3 > /dev/null ; then
     echo
     echo "gpfun installation failed."
     echo
-    exit
+    return 2> /dev/null ; exit 
 fi
 
 # trim 'gpfun' off the command path to get the target directory
@@ -111,7 +111,7 @@ fi
 
 target=`python3 -c "x='$path' ; y=x.split('/') ; print(x[:-(len(y[-1])+1)] )"`
 basedir=`python3 -c "x='$target' ; y=x.split('/') ; print(x[:-(len(y[-1])+1)] )"`
-    
+
 echo
 echo
 echo "Installation of gpfun on a RHEL or Rocky system."
@@ -132,19 +132,25 @@ if [ `whoami` != "root" ]; then
     echo "       please use su to become root, then run this "
     echo "       script again (or click on 'update' in gpfun)."
     echo
-    exit
+    return 2> /dev/null ; exit 
 fi
 
 
-# check the command path for the Raith utilities
+# check the command path for the Raith utilities gpfgtx, gtxgpf, and cview.
+# root might not have the PATH defined properly, so we must run
+# pg_local and/or /etc/bashrc.
 
-# It's tempting to run
-# . /etc/bashrc
-# . /home/pg/pg_local
-# but this might cd $HOME, which confuses the heck
-# out of the shell, causing it to get the default
-# directory wrong. Then pwd doesn't work
-# and it's a mess.
+pushd .
+
+if [ -f /home/pg/pg_local ]; then
+    source /home/pg/pg_local           # also runs /etc/bashrc
+elif [ -f /home/$USER/.bashrc ]; then
+    source /home/$USER/.bashrc         # user might su, making user != root
+else
+    source /etc/bashrc
+fi
+
+popd
 
 
 ok=1
@@ -183,7 +189,7 @@ else
     echo "cview ok"
 fi
 
-if [ $ok == 0 ]; then exit ; fi
+if [ $ok == 0 ]; then return 2> /dev/null ; exit  ; fi
 
 
     
@@ -191,7 +197,7 @@ echo
 echo "Downloading the update..."
 echo
 
-if [ -f $tarfile ]; then rm $tarfile ; fi
+if [ -f $tarfile ]; then rm -f $tarfile ; fi
 
 wget https://github.com/ebpgfunpak/gpfun/blob/main/$tarfile?raw=true -O $tarfile
 
@@ -199,7 +205,7 @@ if [ ! -f $tarfile ]; then
     echo
     echo "ERROR: unable to download $tarfile"
     echo
-    exit
+    return 2> /dev/null ; exit 
 fi
 
 pushd .
@@ -224,7 +230,7 @@ if [ ! -d $basedir ]; then
             echo
             echo "ERROR: unable to create $basedir"
             echo
-            exit
+            return 2> /dev/null ; exit 
         fi
     else
         echo
@@ -232,7 +238,7 @@ if [ ! -d $basedir ]; then
         echo "You can change the target directory at the top of this script,"
         echo "or you can create the directory manually with 'mkdir'."
         echo
-        exit
+        return 2> /dev/null ; exit 
     fi
 fi
     
@@ -245,7 +251,7 @@ if [ ! -d $target ]; then
         echo
         echo "ERROR: Unable to create $target"
         echo
-        exit
+        return 2> /dev/null ; exit 
     fi
 fi
 
@@ -267,7 +273,7 @@ if [ $here == $target ]; then
         echo "       Please put $tarfile in the same folder as install_gpfun.sh"
         echo "       Put them both in $target and try again."
         echo
-        exit
+        return 2> /dev/null ; exit 
     fi
 else
     echo
@@ -279,7 +285,7 @@ else
         echo "       Please put $tarfile and install_gpfun.sh in the folder $target."
         echo "       Then 'cd $target' and try ./install_gpfun.sh again."
         echo
-        exit
+        return 2> /dev/null ; exit 
     fi
     mv -f $tarfile $target/
 fi
@@ -293,7 +299,7 @@ if [ ! -f $target/$tarfile ]; then
     echo "gpfun installation failed."
     echo "Please send a bug report to ebpgfunpak@gmail.com"
     echo
-    exit
+    return 2> /dev/null ; exit 
 fi
 
 
@@ -352,7 +358,7 @@ if [ `echo $PATH | grep -c $target/gpfun` != "1" ]; then
         echo "Try editing install_gpfun.sh to make it set PATH correctly,"
         echo "or add $target/gpfun to PATH manually."
 	echo
-	exit
+	return 2> /dev/null ; exit 
     fi
 else
     echo
@@ -373,26 +379,27 @@ echo "You can test your graphics with the command 'gedit' (a common editing prog
 echo "If this command does not pop up new window, then something is wrong with "
 echo "your connection. For example, you might try 'ssh -Y' instead of 'ssh' "
 echo
-read -p "Are you ready to proceed with the test?  y/n > " answer
 
-if [ $answer != 'y' ] && [ $answer != 'yes' ] && [ $answer != 'Y' ]; then
-    echo
-    echo "Very well, please test gpfun yourself by typing 'gpfun' in a terminal window."
-    echo
-    echo "You must also have installed the Raith utilities gpfgtx, gtxgpf, and cview."
-    echo "These programs are available on any EBPG console computer."
-    echo
-else
-    if [ -f /home/pg/pg_local ]; then
-        bash -c ". /home/pg/pg_local ; cd ; gpfun"
-    else
-	bash -c ". /etc/bashrc ; cd ; gpfun"
-    fi
-    echo
-fi
+# read -p does not work when we are updating with the gpfun python window.
+# it generates a read error. It does this when sourcing or executing
+# install_gpfun.sh. Maybe that's because we had to kill gpfun before
+# starting the new gpfun. This might confuse the i/o buffer.
+# So we must proceed with the test without further questions.
+#
+# read -p "Are you ready to proceed with the test?  y/n > " answer
+#
+# if [ $answer != 'y' ] && [ $answer != 'yes' ] && [ $answer != 'Y' ]; then
+#     echo
+#     echo "Very well, please test gpfun yourself by typing 'gpfun' in a terminal window."
+#     echo
+#     echo "You must also have installed the Raith utilities gpfgtx, gtxgpf, and cview."
+#     echo "These programs are available on any EBPG console computer."
+#     echo
+# else
+#     ...
+# fi
 
-popd
-
+echo
 echo
 echo "====================================================================="
 echo
@@ -404,6 +411,25 @@ echo "in a terminal window. Use 'gpfun filname' to set the output file name"
 echo "with fewer clicks."
 echo
 echo "====================================================================="
+echo
+
+
+pushd .
+
+if [ -f /home/pg/pg_local ]; then
+    bash -c ". /home/pg/pg_local ; cd ; gpfun"
+else
+    bash -c ". /etc/bashrc ; cd ; gpfun"
+fi
+
+popd
+
+echo
+echo
+echo "******************"
+echo " update complete
+echo "******************"
+echo
 echo
 
 
