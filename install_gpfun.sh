@@ -427,7 +427,7 @@ popd
 echo
 echo
 echo "******************"
-echo " update complete
+echo " update complete"
 echo "******************"
 echo
 echo
